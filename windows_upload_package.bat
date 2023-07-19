@@ -3,7 +3,7 @@
 REM Remove dist and build directories
 rmdir /s /q dist
 rmdir /s /q build
-del /q swiftly_unix.egg-info
+del /q swiftly_windows.egg-info
 
 REM Build the package
 python setup.py sdist bdist_wheel
