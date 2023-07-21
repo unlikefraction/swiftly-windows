@@ -92,7 +92,7 @@ IF "%~1"=="push" (
     call pip install swiftly-windows --upgrade > NUL 2>&1
     echo  Virtual environment activated
     for /f "delims=" %%a in ('pip freeze') do set "available_packages=%%a"
-    for /f "delims=" %%a in ('python -c "from swiftly_windows.init import check_new_packages; print(check_new_packages(''%available_packages%''))"') do set "new_packages=%%a"
+    for /f "delims=" %%a in ('python -c "from swiftly_windows.init import check_new_packages; print(check_new_packages(\'\'\'%available_packages%\'\'\'))"') do set "new_packages=%%a"
     IF "%new_packages%"=="True" (
         call pip install -r requirements.txt > NUL
         echo  New packages installed
@@ -128,8 +128,12 @@ IF "%~1"=="push" (
     set "PROJECT_VENV_LOCATION=%venv_location%"
     cd %PROJECT_VENV_LOCATION%
     cd ..
-    for /f "delims=" %%a in ('python -c "from swiftly_windows.init import get_project_name; print(get_project_name())"') do set "PROJECT_NAME=%%a"
+    for /f "delims=" %%a in ('python -c "from swiftly_windows.init import get_project_name; print(get_project_name())"') do set "project_name=%%a"
+    set "PROJECT_NAME=%project_name%"
     echo  Project '%PROJECT_NAME%' ready
+    
+    call python.exe -m pip install --upgrade pip > NUL 2>&1
+
     call pip install -r requirements.txt > NUL
     echo Requirements installed
     call pip install swiftly-windows --upgrade > NUL 2>&1
