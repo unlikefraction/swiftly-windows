@@ -110,18 +110,6 @@ IF "%~1"=="push" (
     for /f "delims=" %%a in ('python -c "from swiftly_windows.init import is_repo; print(is_repo('%~1'))"') do set "is_github_repo=%%a" > NUL 2>&1
     IF "%is_github_repo%"=="True" (
         for /f "delims=" %%a in ('git clone %~1 2^>^&1') do set "git_clone=%%a"
-        for /f "delims=" %%a in ('python -c "from swiftly_windows.init import clone_successful; print(clone_successful(\'\'\'%git_clone%\'\'\'))"') do set "clone_successful=%%a"
-        IF "%clone_successful%"=="True" (
-            echo  Git repository cloned
-        ) ELSE (
-            echo  %clone_successful% fail
-            echo Do you want to create a new project? (y/n)
-            set /p user_input="> "
-            set user_input=%user_input:~0,1%
-            IF /I NOT "%user_input%"=="y" (
-                exit /b 1
-            )
-        )
     )
     for /f "delims=" %%a in ('python -c "from swiftly_windows.init import initialise; print(initialise('%~1'))"') do set "venv_location=%%a"
     call %venv_location%\Scripts\activate
