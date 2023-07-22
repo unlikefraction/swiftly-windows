@@ -110,7 +110,7 @@ IF "%~1"=="push" (
     for /f "delims=" %%a in ('python -c "from swiftly_windows.init import is_repo; print(is_repo('%~1'))"') do set "is_github_repo=%%a" > NUL 2>&1
     IF "%is_github_repo%"=="True" (
         for /f "delims=" %%a in ('git clone %~1 2^>^&1') do set "git_clone=%%a"
-        for /f "delims=" %%a in ('python -c "from swiftly_windows.init import clone_successful; print(clone_successful(''%git_clone%''))"') do set "clone_successful=%%a"
+        for /f "delims=" %%a in ('python -c "from swiftly_windows.init import clone_successful; print(clone_successful(\'\'\'%git_clone%\'\'\'))"') do set "clone_successful=%%a"
         IF "%clone_successful%"=="True" (
             echo  Git repository cloned
         ) ELSE (
@@ -131,7 +131,7 @@ IF "%~1"=="push" (
     for /f "delims=" %%a in ('python -c "from swiftly_windows.init import get_project_name; print(get_project_name())"') do set "project_name=%%a"
     set "PROJECT_NAME=%project_name%"
     echo  Project '%PROJECT_NAME%' ready
-    
+
     call python.exe -m pip install --upgrade pip > NUL 2>&1
 
     call pip install -r requirements.txt > NUL
