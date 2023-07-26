@@ -56,7 +56,7 @@ IF "%~1"=="push" (
 )
 
 :init
-    echo Initiating project
+    echo Initiating project...
     REM Call pip install
     call pip install swiftly-windows --upgrade > NUL
 
@@ -72,36 +72,38 @@ IF "%~1"=="push" (
 
 :init_no_param
     call git fetch > NUL 2>&1
-    for /f "delims=" %%a in ('git status -uno') do set "git_status=%%a"
+    for /f "delims=" %%a in ('git status -uno') do set "git_status=%%a"    
+    for /f "delims=" %%a in ('git status -uno ^| findstr /b /r ".*"') do set "git_status=%%a" && goto :break
+    :break
     for /f "delims=" %%a in ('python -c "from swiftly_windows.init import pull_changes; print(pull_changes('%git_status%'))"') do set "pull_changes=%%a"
     IF "%pull_changes%"=="True" (
         call git pull > NUL
-        echo git changes pulled
+        powershell -Command "Write-Host -NoNewline -ForegroundColor Green '-> '; Write-Host 'Git changes pulled' -ForegroundColor White"
     ) ELSE (
-        echo git up to date
+        powershell -Command "Write-Host -NoNewline -ForegroundColor Green '-> '; Write-Host 'Git up to date' -ForegroundColor White"
     )
 
     for /f "delims=" %%a in ('python -c "from swiftly_windows.init import get_project_name; print(get_project_name())"') do set "PROJECT_NAME=%%a"
-    echo  Project '%PROJECT_NAME%' ready
+    powershell -Command "Write-Host -NoNewline -ForegroundColor Green '-> '; Write-Host 'Project ''%PROJECT_NAME%'' ready' -ForegroundColor White"
     for /f "delims=" %%a in ('python -c "from swiftly_windows.init import get_venv_location; print(get_venv_location())"') do set "venv_location=%%a"
     call %venv_location%\Scripts\activate.bat
 
     set PROJECT_VENV_LOCATION=%venv_location%
 
-    call python.exe -m pip install --upgrade pip
-    call pip install swiftly-windows --upgrade > NUL 2>&1
-    echo  Virtual environment activated
+    call python.exe -m pip install --upgrade pip > NUL 2>&1
+    call pip install swiftly-windows --upgrade > NUL
+    powershell -Command "Write-Host -NoNewline -ForegroundColor Green '-> '; Write-Host 'Virtual Enviorment Activated' -ForegroundColor White"
     for /f "delims=" %%a in ('pip freeze') do set "available_packages=%%a"
-    for /f "delims=" %%a in ('python -c "from swiftly_windows.init import check_new_packages; print(check_new_packages(\'\'\'%available_packages%\'\'\'))"') do set "new_packages=%%a"
+    for /f "delims=" %%a in ('python -c "from swiftly_windows.init import check_new_packages; print(check_new_packages('%available_packages%'))"') do set "new_packages=%%a"
     IF "%new_packages%"=="True" (
         call pip install -r requirements.txt > NUL
-        echo  New packages installed
+        powershell -Command "Write-Host -NoNewline -ForegroundColor Green '-> '; Write-Host 'New Packages Installed' -ForegroundColor White"
     ) ELSE (
-        echo  All packages already installed
+        powershell -Command "Write-Host -NoNewline -ForegroundColor Green '-> '; Write-Host 'All packages already installed' -ForegroundColor White"
     )
     pip freeze > %PROJECT_VENV_LOCATION%\..\requirements.txt
-    echo  All checks completed swiftly
-    echo ☆ Project '%PROJECT_NAME%' initiated successfully ☺
+    powershell -Command "Write-Host -NoNewline -ForegroundColor Green '-> '; Write-Host 'All checks completed swiftly' -ForegroundColor White"
+    powershell -Command "Write-Host -NoNewline -ForegroundColor Green 'Project'; Write-Host -NoNewline -ForegroundColor Yellow ''%PROJECT_NAME%''; Write-Host ' initiated successfully :)' -ForegroundColor Green"
     goto :eof
 
 :init_with_param
@@ -116,25 +118,27 @@ IF "%~1"=="push" (
     set "PROJECT_VENV_LOCATION=%venv_location%"
     cd %PROJECT_VENV_LOCATION%
     cd ..
+
+    call pip install swiftly-windows --upgrade > NUL 2>&1
+
     for /f "delims=" %%a in ('python -c "from swiftly_windows.init import get_project_name; print(get_project_name())"') do set "project_name=%%a"
     set "PROJECT_NAME=%project_name%"
-    echo  Project '%PROJECT_NAME%' ready
+    powershell -Command "Write-Host -NoNewline -ForegroundColor Green '-> '; Write-Host 'Project ''%PROJECT_NAME%'' ready' -ForegroundColor White"
 
     call python.exe -m pip install --upgrade pip > NUL 2>&1
 
     call pip install -r requirements.txt > NUL
-    echo Requirements installed
-    call pip install swiftly-windows --upgrade > NUL 2>&1
+    powershell -Command "Write-Host -NoNewline -ForegroundColor Green '-> '; Write-Host 'Requirements installed' -ForegroundColor White"
     pip freeze > %PROJECT_VENV_LOCATION%\..\requirements.txt
-    echo  All checks completed swiftly
-    echo ☆ Project '%PROJECT_NAME%' initiated successfully ☺
+    powershell -Command "Write-Host -NoNewline -ForegroundColor Green '-> '; Write-Host 'All checks completed swiftly' -ForegroundColor White"
+    powershell -Command "Write-Host -NoNewline -ForegroundColor Green 'Project'; Write-Host -NoNewline -ForegroundColor Yellow ''%PROJECT_NAME%''; Write-Host ' initiated successfully :)' -ForegroundColor Green"
     goto :eof
 
 :makeapp
     REM Call Python function with arguments
     python -c "from swiftly_windows.makeapp import makeapp; makeapp('%~1', r'%PROJECT_VENV_LOCATION%')" > NUL
     TIMEOUT /T 1 /NOBREAK > NUL
-    echo ✓ App '%~1' created successfully
+    powershell -Command "Write-Host -NoNewline -ForegroundColor Green '-> '; Write-Host 'App ''%~1'' created successfully'"
     goto :eof
 
 :run
